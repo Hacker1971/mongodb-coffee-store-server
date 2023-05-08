@@ -1,5 +1,5 @@
 const express = require("express");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
@@ -23,7 +23,51 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    const coffeeCollection = client.db('coffeeDB').collection('coffee');
+    const coffeeCollection = client.db("coffeeDB").collection("coffee");
+    app.get("/coffees", async (req, res) => {
+      const cursor = coffeeCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    app.get("/coffees/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await coffeeCollection.findOne(query);
+      res.send(result);
+    });
+    app.post("/coffees", async (req, res) => {
+      const newCoffee = req.body;
+      console.log(newCoffee);
+      const result = await coffeeCollection.insertOne(newCoffee);
+      res.send(result);
+    });
+    app.put('/coffee/:id', async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const options = { upsert: true };
+      const updatedCoffee = req.body;
+
+      const coffee = {
+          $set: {
+              name: updatedCoffee.name, 
+              Chef: updatedCoffee.Chef, 
+              supplier: updatedCoffee.supplier, 
+              taste: updatedCoffee.taste, 
+              category: updatedCoffee.category, 
+              details: updatedCoffee.details, 
+              photo: updatedCoffee.photo
+          }
+      }
+
+      const result = await coffeeCollection.updateOne(filter, coffee, options);
+      res.send(result);
+  })
+    app.delete('/coffees/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await coffeeCollection.deleteOne(query);
+      res.send(result);
+  })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
@@ -37,7 +81,9 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Create a MongoClient with a MongoClientOptions object to set the Stable API version");
+  res.send(
+    "Create a MongoClient with a MongoClientOptions object to set the Stable API version"
+  );
 });
 
 app.listen(port, () => {
