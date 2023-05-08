@@ -85,6 +85,11 @@ app.get("/", (req, res) => {
     "Create a MongoClient with a MongoClientOptions object to set the Stable API version"
   );
 });
+app.get("/coffee", (req, res) => {
+  res.send(
+    "Create a MongoClient with a MongoClientOptions object to set the Stable API version"
+  );
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
