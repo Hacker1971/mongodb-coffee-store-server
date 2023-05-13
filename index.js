@@ -87,7 +87,7 @@ app.get("/", (req, res) => {
 });
 app.get("/coffee", (req, res) => {
   res.send(
-    "Create a MongoClient with a MongoClientOptions object to set the Stable API version"
+    "Create a MongoClient with a MongoClientOptions object to set the Stable copy version"
   );
 });
 
